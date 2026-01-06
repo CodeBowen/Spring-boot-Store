@@ -34,19 +34,6 @@ public class User {
     @Builder.Default
     private List<Address> addresses = new ArrayList<>();
 
-    public void addAddress(Address address) {
-        addresses.add(address);
-        address.setUser(this);
-    }
-
-    public void removeAddress(Address address) {
-        addresses.remove(address);
-        address.setUser(null);
-    }
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private Profile profile;
-
     @ManyToMany
     @JoinTable(
         name = "wishlist",
@@ -54,10 +41,6 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     private Set<Product> favoriteProducts = new HashSet<>();
-
-    public void addFavoriteProduct(Product product) {
-        favoriteProducts.add(product);
-    }
 
     @Override
     public String toString() {
