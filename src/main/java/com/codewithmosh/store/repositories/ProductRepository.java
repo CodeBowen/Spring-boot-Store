@@ -12,7 +12,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @EntityGraph(attributePaths = "category")
     List<Product> findByCategoryId(Byte categoryId);
 
-    @Query ("SELECT p FROM Product p")
+    @Query("SELECT p FROM Product p")
     @EntityGraph(attributePaths = "category")
     List<Product> findAllWithCategory();
 }
