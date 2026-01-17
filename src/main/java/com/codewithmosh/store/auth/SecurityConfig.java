@@ -1,10 +1,9 @@
 package com.codewithmosh.store.auth;
 
-import com.codewithmosh.store.users.Role;
+import com.codewithmosh.store.common.SecurityRules;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -21,12 +20,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final List<SecurityRules> featureSecurityRules;   // Spring will initialize all the "SecurityRules" implementations Annotated @Component
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -58,22 +60,10 @@ public class SecurityConfig {
                         c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-                        c -> c
-                                .requestMatchers("/swagger-ui/**").permitAll()
-                                .requestMatchers("/swagger-ui.html").permitAll()
-                                .requestMatchers("/v3/api-docs/**").permitAll()
-                                .requestMatchers("/api/carts/**").permitAll()
-                                .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
-                                .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole(Role.ADMIN.name())
-                                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole(Role.ADMIN.name())
-                                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole(Role.ADMIN.name())
-
-                                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/checkout/webhook").permitAll()
-                                .anyRequest().authenticated()
+                        c -> {
+                            featureSecurityRules.forEach(r -> r.configure(c));
+                            c.anyRequest().authenticated();  // Restrict any other requests to authenticate users
+                        }
 
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -81,7 +71,7 @@ public class SecurityConfig {
                             c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
                             c.accessDeniedHandler((request, response, accessDeniedException) -> response.setStatus(HttpStatus.FORBIDDEN.value()));
                         }
-                        );
+                );
 
         return http.build();
     }
