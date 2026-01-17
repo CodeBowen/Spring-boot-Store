@@ -59,8 +59,7 @@ public class SecurityConfig {
                 .sessionManagement(
                         c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        c -> {
+                .authorizeHttpRequests(c -> {
                             featureSecurityRules.forEach(r -> r.configure(c));
                             c.anyRequest().authenticated();  // Restrict any other requests to authenticate users
                         }
@@ -69,7 +68,8 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(c -> {
                             c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-                            c.accessDeniedHandler((request, response, accessDeniedException) -> response.setStatus(HttpStatus.FORBIDDEN.value()));
+                            c.accessDeniedHandler((request, response, accessDeniedException) ->
+                                    response.setStatus(HttpStatus.FORBIDDEN.value()));
                         }
                 );
 
