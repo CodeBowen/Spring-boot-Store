@@ -59,9 +59,17 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         c -> c
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .requestMatchers("/swagger-ui.html").permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
                                 .requestMatchers("/api/carts/**").permitAll()
                                 .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
                                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole(Role.ADMIN.name())
+                                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole(Role.ADMIN.name())
+                                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole(Role.ADMIN.name())
+
                                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/checkout/webhook").permitAll()
