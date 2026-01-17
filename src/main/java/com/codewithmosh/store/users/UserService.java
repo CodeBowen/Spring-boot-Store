@@ -3,7 +3,6 @@ package com.codewithmosh.store.users;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,8 +40,8 @@ public class UserService {
         }
 
         var user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
-        user.setPassword(new BCryptPasswordEncoder().encode(request.getPassword()));
         userRepository.save(user);
         return userMapper.userToUserDto(user);
     }
