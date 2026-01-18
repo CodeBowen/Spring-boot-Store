@@ -39,9 +39,9 @@ public class CheckOutController {
     }
 
     @ExceptionHandler(PaymentException.class)
-    public ResponseEntity<ErrorDto> handlePaymentException() {
+    public ResponseEntity<ErrorDto> handlePaymentException(Exception ex) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorDto("Error creating a checkout session"));
+                .body(new ErrorDto(ex.getMessage()));
     }
 }

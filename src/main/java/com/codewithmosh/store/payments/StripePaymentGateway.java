@@ -9,14 +9,12 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
 public class StripePaymentGateway implements PaymentGateway {
     @Value("${websiteUrl}")
@@ -34,7 +32,6 @@ public class StripePaymentGateway implements PaymentGateway {
                     .setSuccessUrl(websiteUrl + "/checkout-success?orderId=" + order.getId())
                     .setCancelUrl(websiteUrl + "/checkout-cancel")
                     .setPaymentIntentData(createPaymentIntentData(order));
-
             order.getItems().forEach(item -> {
                 var lineItem = createLineItem(item);
                 builder.addLineItem(lineItem);
@@ -45,7 +42,7 @@ public class StripePaymentGateway implements PaymentGateway {
 
         } catch (StripeException ex) {
             System.out.println(ex.getMessage());
-            throw new PaymentException();
+            throw new PaymentException("Session created failed");
         }
     }
 
